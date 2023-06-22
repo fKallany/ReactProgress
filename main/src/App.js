@@ -1,51 +1,36 @@
-import logo from './logo.svg';
 import './App.css';
 import { Component } from 'react';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  state = {
+    posts: []
+  };
 
-    // I used .bind to access this inside the handlePClick function
-    this.handlePClick = this.handlePClick.bind(this);
-
-    this.state = {
-      name: 'Júnior',
-      counter: 0,
-    };
+  componentDidMount() {
+    this.loadPosts();
   }
 
-  handlePClick() {
-    this.setState({ name: 'Pleno' })
-  }
+  loadPosts = async () => {
+    const postsResponse = fetch('https://jsonplaceholder.typicode.com/posts');
 
-  // Using arrow function I don't need to resort to .bind
-  handleAClick = (event) => {
-    event.preventDefault();
-    const { counter } = this.state;
-    this.setState({ counter: counter + 1 })
+    const [posts] = await Promise.all([postsResponse]);
+
+    const postsJson = await posts.json();
+
+    this.setState({ posts: postsJson });
   }
 
   render() {
-    const { name, counter } = this.state
+    const { posts } = this.state
 
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p onClick={this.handlePClick}>
-            {name} {counter}
-          </p>
-          <a
-            onClick={this.handleAClick}
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Counter +1
-          </a>
-        </header>
+        {posts.map(post => (
+          <div key={post.id}>
+            <h1>{post.title}</h1>
+            <p>{post.body}</p>
+          </div>
+        ))}
       </div>
     );
   }
